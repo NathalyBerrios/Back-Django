@@ -1,3 +1,7 @@
+import json
+import os
+from tabulate import tabulate
+
 print("--- Sistema de Admisión Veterinaria ---")
 
 # Límite máximo de atenciones para el día
@@ -20,3 +24,21 @@ elif peso > 15:
     print(f"Rechazado: {nombre} excede el peso máximo permitido de 15 kilos para los caniles.")
 elif peso <= 15 and cupos > 0:
     print(f"Aceptado: {nombre} ha sido ingresado con éxito a la jornada.")
+    
+registros = []
+
+# Revisamos si el archivo ya existe para no borrar los registros anteriores
+if os.path.exists("datos.json"):
+    with open("datos.json", "r") as f:
+        registros = json.load(f)
+
+# Agregamos el nuevo registro a la lista
+registros.append({"nombre": nombre, "estado": estado})
+
+# Escribimos la lista actualizada en el archivo datos.json
+with open("datos.json", "w") as f:
+    json.dump(registros, f, indent=2)
+
+# Mostramos la tabla en la consola
+print("\n--- Resumen de Registros ---")
+print(tabulate(registros, headers="keys"))
