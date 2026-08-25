@@ -10,5 +10,9 @@
   {
     "nombre": "lulu",
     "estado": "Aceptado"
+  },
+  {
+    "nombre": "pepe",
+    "estado": "Aceptado"
   }
 ]
