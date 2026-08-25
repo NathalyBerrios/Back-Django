@@ -1,4 +1,3 @@
-# solucion.py
 
 import json
 import os
