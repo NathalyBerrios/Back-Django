@@ -1,50 +1,74 @@
-
 import json
 import os
 from tabulate import tabulate
 
-print("--- Sistema de Admisión Veterinaria ---")
-
 CUPOS_TOTALES = 10 
 
-mascotas_ingresadas = int(input("¿Cuántas mascotas ya han entrado hoy?: "))
-cupos = CUPOS_TOTALES - mascotas_ingresadas 
+# 1. TODO SE ENCAPSULA EN ESTA FUNCIÓN
+def procesar_admision(mascotas_ingresadas, nombre, peso):
+    cupos = CUPOS_TOTALES - mascotas_ingresadas 
 
-nombre = input("Nombre de la mascota: ")
-peso = int(input("Peso de la mascota (kilos): "))
+    estado = ""
+    motivo = "" # Creamos la variable motivo para guardarla en el JSON
 
-# Variable para guardar el resultado final
-estado = ""
+    # Asignamos estado y motivo de forma separada
+    if peso <= 0:
+        estado = "Dato Inválido"
+        motivo = "El peso debe ser mayor a 0."
+    elif peso > 15:
+        estado = "Rechazado"
+        motivo = "Excede el peso máximo permitido de 15 kilos."
+    elif cupos <= 0:
+        estado = "Rechazado"
+        motivo = "No quedan cupos disponibles para hoy."
+    else:
+        estado = "Aceptado"
+        motivo = "Ingresado con éxito a la jornada."
 
-if peso <= 0:
-    estado = "Dato Inválido"
-    print(f"Error: El peso ingresado para {nombre} es inválido. Debe ser mayor a 0.")
-elif peso > 15:
-    estado = "Rechazo: Excede peso"
-    print(f"Rechazado: {nombre} excede el peso máximo permitido de 15 kilos para los caniles.")
-elif cupos <= 0:
-    estado = "Rechazo: Sin cupos"
-    print(f"Rechazado: Lo sentimos, ya no quedan cupos para atender a {nombre} hoy.")
-elif peso <= 15 and cupos > 0:
-    estado = "Aceptado"
-    print(f"Aceptado: {nombre} ha sido ingresado con éxito a la jornada.")
+    # --- FASE 2: GUARDAR EN JSON ---
+    registros = []
 
-# --- FASE 2: GUARDAR EN JSON Y MOSTRAR TABLA ---
+    if os.path.exists("datos.json"):
+        with open("datos.json", "r", encoding="utf-8") as f:
+            try:
+                registros = json.load(f)
+            except json.JSONDecodeError:
+                # Por si el archivo existe pero está vacío o corrupto
+                registros = []
 
-registros = []
+    # 2. EL JSON AHORA GUARDA LAS 4 VARIABLES (Nombre, Estado, Peso y Motivo)
+    nuevo_registro = {
+        "nombre": nombre, 
+        "estado": estado,
+        "peso": peso,
+        "motivo": motivo
+    }
+    
+    registros.append(nuevo_registro)
 
-# Revisamos si el archivo ya existe para no borrar los registros anteriores
-if os.path.exists("datos.json"):
-    with open("datos.json", "r") as f:
-        registros = json.load(f)
+    with open("datos.json", "w", encoding="utf-8") as f:
+        json.dump(registros, f, indent=2)
 
-# Agregamos el nuevo registro a la lista
-registros.append({"nombre": nombre, "estado": estado})
+    # La función debe retornar el registro para que Django lo reciba en views.py
+    return nuevo_registro
 
-# Escribimos la lista actualizada en el archivo datos.json
-with open("datos.json", "w") as f:
-    json.dump(registros, f, indent=2)
 
-# Mostramos la tabla en la consola
-print("\n--- Resumen de Registros ---")
-print(tabulate(registros, headers="keys"))
+# Bloque de prueba para la consola (Django ignorará esto y solo usará la función)
+if __name__ == "__main__":
+    print("--- Sistema de Admisión Veterinaria ---")
+    
+    masc_ingresadas = int(input("¿Cuántas mascotas ya han entrado hoy?: "))
+    nom = input("Nombre de la mascota: ")
+    p = int(input("Peso de la mascota (kilos): "))
+    
+    # Llamamos a la función
+    resultado = procesar_admision(masc_ingresadas, nom, p)
+    
+    print(f"\n[{resultado['estado']}] {resultado['nombre']} - {resultado['motivo']}")
+    
+    # Mostramos la tabla leyendo el archivo recién actualizado
+    if os.path.exists("datos.json"):
+        with open("datos.json", "r", encoding="utf-8") as f:
+            datos_guardados = json.load(f)
+            print("\n--- Resumen de Registros ---")
+            print(tabulate(datos_guardados, headers="keys"))
