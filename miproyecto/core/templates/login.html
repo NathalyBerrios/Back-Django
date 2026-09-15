@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar sesión</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        label { display: block; margin-top: 12px; }
+        input { padding: 6px; width: 220px; }
+        .msg-error { color: #b00020; }
+        .btn { padding: 6px 14px; margin-top: 16px; }
+    </style>
+</head>
+<body>
+
+    <h2>Iniciar sesión</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p class="msg-error">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label for="username">Usuario</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" required>
+
+        <br>
+        <button class="btn" type="submit">Entrar</button>
+    </form>
+
+</body>
+</html>

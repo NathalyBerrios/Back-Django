@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmar eliminación</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .btn-eliminar { background: #b00020; color: white; border: none; padding: 8px 16px; }
+    </style>
+</head>
+<body>
+
+    <h2>¿Eliminar el registro de "{{ registro.nombre }}"?</h2>
+    <p>Esto no borra la ficha de la base de datos: la marca como eliminada
+       y deja de aparecer en el listado (borrado lógico).</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button class="btn-eliminar" type="submit">Sí, eliminar</button>
+        <a href="{% url 'lista' %}">Cancelar</a>
+    </form>
+
+</body>
+</html>
