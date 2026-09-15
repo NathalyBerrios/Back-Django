@@ -5,12 +5,12 @@ Actualmente, en las jornadas de atención veterinaria municipal, las personas ha
 Solución:
 Un programa en consola que evalúa en el instante si la mascota puede ser ingresada basándose en su peso y en los cupos del día, entregando un veredicto con el motivo exacto si es rechazada.  
 Alcance:
-El sistema solo procesará las admisiones del día y registrará los resultados. No administrará historiales médicos ni agendará horas para el futuro.  
+El sistema procesa las admisiones del día, las guarda en una base de datos SQLite y permite editarlas o eliminarlas lógicamente según el rol del usuario. Sigue sin administrar historiales médicos ni agendar horas futuras.
 MoSCoW:
-Must: Pedir los datos de la mascota, decidir entre 4 opciones, mostrar el motivo exacto, guardar en JSON y mostrar el resumen final.  
-Should: Validar que el usuario no deje el nombre en blanco.  
-Could: Mostrar cuántos cupos sobraron al final. 
-Won't: Cuentas de usuario con contraseña y base de datos fara futuros chequeos.  
+Must: Pedir los datos de la mascota, decidir entre 4 opciones, guardar en base de datos, listar/crear/editar/eliminar, login con roles.
+Should: validar que el usuario no deje el nombre en blanco.  
+Could: mostrar cuántos cupos quedan disponibles en la pantalla.
+Won't: historial médico, agenda de horas futuras. 
 
 2) Apartado Técnico
 Datos de entrada:
