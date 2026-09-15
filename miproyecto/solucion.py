@@ -2,16 +2,17 @@ import json
 import os
 from tabulate import tabulate
 
-CUPOS_TOTALES = 10 
+CUPOS_TOTALES = 10
 
-# 1. TODO SE ENCAPSULA EN ESTA FUNCIÓN
-def procesar_admision(mascotas_ingresadas, nombre, peso):
-    cupos = CUPOS_TOTALES - mascotas_ingresadas 
+# 1. LA REGLA DE DECISIÓN, TAL CUAL LA ES1 — NO SE TOCA
+# Se saca a su propia función para poder importarla desde Django sin
+# arrastrar el guardado en JSON.
+def evaluar_admision(mascotas_ingresadas, peso):
+    cupos = CUPOS_TOTALES - mascotas_ingresadas
 
     estado = ""
-    motivo = "" # Creamos la variable motivo para guardarla en el JSON
+    motivo = ""
 
-    # Asignamos estado y motivo de forma separada
     if peso <= 0:
         estado = "Dato Inválido"
         motivo = "El peso debe ser mayor a 0."
@@ -25,7 +26,16 @@ def procesar_admision(mascotas_ingresadas, nombre, peso):
         estado = "Aceptado"
         motivo = "Ingresado con éxito a la jornada."
 
-    # --- FASE 2: GUARDAR EN JSON ---
+    return estado, motivo
+
+
+# Sigue usando datos.json porque es la que se corre por consola con
+# "python solucion.py". Django ya no la llama: Django llama a
+# evaluar_admision() directamente y guarda en la base de datos.
+def procesar_admision(mascotas_ingresadas, nombre, peso):
+    estado, motivo = evaluar_admision(mascotas_ingresadas, peso)
+
+    # --- GUARDAR EN JSON (solo para el modo consola) ---
     registros = []
 
     if os.path.exists("datos.json"):
@@ -33,40 +43,34 @@ def procesar_admision(mascotas_ingresadas, nombre, peso):
             try:
                 registros = json.load(f)
             except json.JSONDecodeError:
-                # Por si el archivo existe pero está vacío o corrupto
                 registros = []
 
-    # 2. EL JSON AHORA GUARDA LAS 4 VARIABLES (Nombre, Estado, Peso y Motivo)
     nuevo_registro = {
-        "nombre": nombre, 
+        "nombre": nombre,
         "estado": estado,
         "peso": peso,
         "motivo": motivo
     }
-    
+
     registros.append(nuevo_registro)
 
     with open("datos.json", "w", encoding="utf-8") as f:
         json.dump(registros, f, indent=2)
 
-    # La función debe retornar el registro para que Django lo reciba en views.py
     return nuevo_registro
 
 
-# Bloque de prueba para la consola (Django ignorará esto y solo usará la función)
 if __name__ == "__main__":
     print("--- Sistema de Admisión Veterinaria ---")
-    
+
     masc_ingresadas = int(input("¿Cuántas mascotas ya han entrado hoy?: "))
     nom = input("Nombre de la mascota: ")
     p = int(input("Peso de la mascota (kilos): "))
-    
-    # Llamamos a la función
+
     resultado = procesar_admision(masc_ingresadas, nom, p)
-    
+
     print(f"\n[{resultado['estado']}] {resultado['nombre']} - {resultado['motivo']}")
-    
-    # Mostramos la tabla leyendo el archivo recién actualizado
+
     if os.path.exists("datos.json"):
         with open("datos.json", "r", encoding="utf-8") as f:
             datos_guardados = json.load(f)
