@@ -16,10 +16,10 @@ Won't: historial médico, agenda de horas futuras.
 Datos de entrada:
 Nombre de la mascota: Texto (ingresado con input()).  
 Peso de la mascota (kilos): Número entero (convertido con int()).
-Cupos disponibles: Número entero (convertido con int()).  
+Cupos disponibles: desde la base de datos.  
 Regla de decisión (4 resultados):Dato inválido: Si el peso ingresado es 0 o negativo.  Rechazo 1: Si los cupos disponibles son 0 (no hay espacio).  Rechazo 2: Si el peso de la mascota es mayor a 15 kilos (excede la capacidad del canil).  
 Aceptado: Si hay cupos mayores a 0 y el peso es menor o igual a 15 kilos.  
 Paquete externo:
 Se utilizará el paquete tabulate para formatear y pasar los registros del JSON a una tabla ordenada en la consola.  
 Pantalla web:
-Tendrá una sola vista en Django que leerá el archivo datos.json y mostrará en una tabla web el listado final de mascotas aceptadas y rechazadas. 
+Django expone un listado protegido por login, un formulario para registrar, uno para editar y una confirmación para eliminar lógicamente, todo leyendo y escribiendo en la base de datos SQLite según el rol del usuario.
