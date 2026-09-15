@@ -38,7 +38,7 @@ def lista(request):  # cualquier usuario logueado puede mirar
         "puede_crear": tiene_rol(request.user, "admin", "normal"),
         "puede_editar": tiene_rol(request.user, "admin"),
     }
-    return render(request, "lista.html", contexto)
+    return render(request, "list.html", contexto)
 
 
 # ---------- CREATE ----------
@@ -101,7 +101,7 @@ def eliminar(request, pk):
     if request.method == "POST":
         reg.soft_delete()  # no se borra la fila, solo se marca eliminado=True
         return redirect("lista")
-    return render(request, "confirmar.html", {"registro": reg})
+    return render(request, "confirm.html", {"registro": reg})
 
 
 # ---------- LOGIN / LOGOUT ----------
