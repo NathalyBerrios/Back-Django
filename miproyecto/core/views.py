@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
-# Tu regla de decisión de la ES1, ahora importada desde una función pura
+# La regla de decisión ahora importada desde una función pura
 # (evaluar_admision) en vez de procesar_admision, que era la que escribía
 # en datos.json.
 from solucion import evaluar_admision
