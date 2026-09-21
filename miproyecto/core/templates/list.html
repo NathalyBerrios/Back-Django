@@ -14,25 +14,6 @@
         .invalido { color: #b06a00; }
         .btn { padding: 4px 10px; text-decoration: none; border: 1px solid #333; border-radius: 4px; color: #333; }
         .msg-error { color: #b00020; }
-    </style>
-</head>
-<body>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Admisiones Veterinarias</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        table { border-collapse: collapse; width: 80%; }
-        th, td { border: 1px solid #dddddd; text-align: left; padding: 8px; }
-        th { background-color: #f2f2f2; }
-        .topbar { display: flex; justify-content: space-between; align-items: center; width: 80%; margin-bottom: 10px; }
-        .aceptado { color: #1a7a1a; }
-        .rechazado { color: #b00020; }
-        .invalido { color: #b06a00; }
-        .btn { padding: 4px 10px; text-decoration: none; border: 1px solid #333; border-radius: 4px; color: #333; }
-        .msg-error { color: #b00020; }
         .link-btn { background: none; border: none; padding: 0; color: #0645ad; text-decoration: underline; cursor: pointer; font: inherit; }
     </style>
 </head>
@@ -47,62 +28,6 @@
                 {% csrf_token %}
                 <button class="link-btn" type="submit">Cerrar sesión</button>
             </form>
-        </div>
-    </div>
-
-    {% if messages %}
-        {% for message in messages %}
-            <p class="msg-error">{{ message }}</p>
-        {% endfor %}
-    {% endif %}
-
-    {% if puede_crear %}
-        <p><a class="btn" href="{% url 'crear' %}">+ Registrar mascota</a></p>
-    {% endif %}
-
-    <table>
-        <tr>
-            <th>Nombre</th>
-            <th>Peso (kg)</th>
-            <th>Estado</th>
-            <th>Motivo</th>
-            <th>Fecha</th>
-            {% if puede_editar %}<th>Acciones</th>{% endif %}
-        </tr>
-
-        {% for registro in registros %}
-        <tr>
-            <td>{{ registro.nombre }}</td>
-            <td>{{ registro.peso }}</td>
-            <td class="{% if registro.estado == 'Aceptado' %}aceptado{% elif registro.estado == 'Rechazado' %}rechazado{% else %}invalido{% endif %}">
-                {{ registro.estado }}
-            </td>
-            <td>{{ registro.motivo }}</td>
-            <td>{{ registro.fecha }}</td>
-            {% if puede_editar %}
-            <td>
-                <a href="{% url 'editar' registro.pk %}">Editar</a>
-                &nbsp;|&nbsp;
-                <a href="{% url 'eliminar' registro.pk %}">Eliminar</a>
-            </td>
-            {% endif %}
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="6">No hay mascotas registradas todavía.</td>
-        </tr>
-        {% endfor %}
-    </table>
-
-</body>
-</html>
-
-    <div class="topbar">
-        <h2>Registro de Admisiones Veterinarias</h2>
-        <div>
-            Hola, {{ user.username }}
-            &nbsp;|&nbsp;
-            <a href="{% url 'logout' %}">Cerrar sesión</a>
         </div>
     </div>
 
