@@ -12,7 +12,7 @@ for r in datos_viejos:
         continue  # evita duplicar si el script se corre dos veces
     Registro.objects.create(
         nombre=nombre,
-        peso=r.get("peso", 0),
+        peso=r.get("peso", 10),
         estado=r.get("estado", "Aceptado"),
         motivo=r.get("motivo", "Migrado desde datos.json (registro antiguo, sin motivo)."),
     )
