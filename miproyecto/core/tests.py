@@ -1,6 +1,5 @@
 from django.contrib.auth.models import Group, User
 from django.test import TestCase
-
 from solucion import evaluar_admision
 from .models import Registro
 
