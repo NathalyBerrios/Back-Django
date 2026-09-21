@@ -148,3 +148,69 @@ class CrudFormularioTests(TestCase):
         self.assertRedirects(respuesta, "/")
         reg.refresh_from_db()
         self.assertEqual(reg.estado, "Rechazado")  # 20 kilos supera el máximo
+
+
+class CuposPorFechaTests(TestCase):
+    """
+    El bug que encontró el profesor: contar los cupos sin filtrar por
+    fecha hacía que, pasadas 10 aceptaciones en TODA la vida del
+    sistema, nadie más volviera a ser admitido. Se prueba directamente
+    sobre _cupos_ocupados(), sin pasar por las vistas.
+    """
+
+    def test_aceptados_de_otro_dia_no_cuentan_para_hoy(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from .views import _cupos_ocupados
+
+        hace_30_dias = timezone.now() - timedelta(days=30)
+        for i in range(9):
+            r = Registro.objects.create(
+                nombre=f"Viejo{i}", peso=5, estado="Aceptado", motivo="x"
+            )
+            Registro.objects.filter(pk=r.pk).update(fecha=hace_30_dias)
+
+        Registro.objects.create(nombre="Hoy1", peso=5, estado="Aceptado", motivo="x")
+
+        # Hay 9 aceptados de hace 30 días + 1 de hoy = 10 en total,
+        # pero para el cupo de HOY solo debe contar el de hoy.
+        self.assertEqual(_cupos_ocupados(), 1)
+
+
+class LogoutYNextTests(TestCase):
+    """
+    Dos correcciones de seguridad: cerrar sesión solo debe aceptar POST
+    (un GET no debería poder desloguear a nadie), y el parámetro "next"
+    del login no debe mandar a sitios externos sin validar.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user("test_user", password="clave123")
+
+    def test_logout_con_get_no_esta_permitido(self):
+        self.client.login(username="test_user", password="clave123")
+        respuesta = self.client.get("/logout/")
+        self.assertEqual(respuesta.status_code, 405)  # Method Not Allowed
+        # y además, la sesión sigue activa
+        respuesta = self.client.get("/")
+        self.assertEqual(respuesta.status_code, 200)
+
+    def test_logout_con_post_si_funciona(self):
+        self.client.login(username="test_user", password="clave123")
+        respuesta = self.client.post("/logout/")
+        self.assertRedirects(respuesta, "/login/")
+
+    def test_login_redirige_a_next_si_es_del_mismo_sitio(self):
+        respuesta = self.client.post(
+            "/login/?next=/registros/crear/",
+            {"username": "test_user", "password": "clave123"},
+        )
+        self.assertRedirects(respuesta, "/registros/crear/", fetch_redirect_response=False)
+
+    def test_login_ignora_next_hacia_un_sitio_externo(self):
+        respuesta = self.client.post(
+            "/login/?next=https://sitio-malicioso.com/robar",
+            {"username": "test_user", "password": "clave123"},
+        )
+        self.assertRedirects(respuesta, "/", fetch_redirect_response=False)
