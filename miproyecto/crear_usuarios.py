@@ -56,3 +56,6 @@ print("Usuario normal1", "creado" if creado else "actualizado", "(rol normal).")
 creado = crear_o_actualizar_usuario("viewer1", "PASS_VIEWER", grupo_viewer)
 print("Usuario viewer1", "creado" if creado else "actualizado", "(rol viewer).")
 
+if not User.objects.filter(username="superadmin").exists():
+    User.objects.create_superuser("superadmin", email="", password=config("PASS_ADMIN"))
+    print("Superusuario 'superadmin' creado para el panel /admin/")
