@@ -1,6 +1,9 @@
 import json
 
+from django.utils import timezone
+
 from core.models import Registro
+from solucion import evaluar_admision
 
 with open("datos.json", encoding="utf-8") as f:
     datos_viejos = json.load(f)
@@ -10,11 +13,22 @@ for r in datos_viejos:
     nombre = r.get("nombre", "Sin nombre")
     if Registro.objects.filter(nombre=nombre).exists():
         continue  # evita duplicar si el script se corre dos veces
+
+    peso = r.get("peso", 10)
+
+    mascotas_ingresadas = Registro.objects.filter(
+        estado="Aceptado",
+        eliminado=False,
+        fecha__date=timezone.localdate(),
+    ).count()
+
+    estado, motivo = evaluar_admision(mascotas_ingresadas, peso)
+
     Registro.objects.create(
         nombre=nombre,
-        peso=r.get("peso", 10),
-        estado=r.get("estado", "Aceptado"),
-        motivo=r.get("motivo", "Migrado desde datos.json (registro antiguo, sin motivo)."),
+        peso=peso,
+        estado=estado,
+        motivo=f"{motivo} (migrado desde datos.json)",
     )
     creados += 1
 
