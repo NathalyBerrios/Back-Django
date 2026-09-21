@@ -2,25 +2,18 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-
-# La regla de decisión ahora importada desde una función pura
-# (evaluar_admision) en vez de procesar_admision, que era la que escribía
-# en datos.json.
+from django.utils import timezone
 from solucion import evaluar_admision
 from .models import Registro
 from .decorators import requiere_rol, tiene_rol
 
 
 def _cupos_ocupados(excluir_pk=None):
-    """
-    Cuenta cuántas mascotas ya fueron Aceptadas hoy, leyendo la base de
-    datos. Reemplaza el input manual "¿cuántas mascotas ya han entrado
-    hoy?" de la versión de consola: con base de datos, ese número ya no
-    hay que pedirlo, se cuenta solo.
-    excluir_pk sirve para que, al editar una ficha, esa misma ficha no
-    se cuente dos veces.
-    """
-    ocupados = Registro.objects.filter(estado="Aceptado", eliminado=False)
+    ocupados = Registro.objects.filter(
+        estado="Aceptado", 
+        eliminado=False,
+        fecha__date=timezone.localdate() # <- El filtro exigido
+    )
     if excluir_pk is not None:
         ocupados = ocupados.exclude(pk=excluir_pk)
     return ocupados.count()
@@ -114,7 +107,8 @@ def vista_login(request):
         )
         if user:
             login(request, user)
-            return redirect("lista")
+            next_url = request.GET.get("next", "lista")
+            return redirect(next_url)
         messages.error(request, "Usuario o contraseña incorrectos.")
     return render(request, "login.html")
 
