@@ -40,6 +40,11 @@ class RegistroModelTests(TestCase):
 
 
 class PermisosVistasTests(TestCase):
+    """
+    Formaliza lo mismo que se probó a mano escribiendo las URLs en el
+    navegador: cada rol solo puede llegar a donde le corresponde, aunque
+    escriba la dirección directamente.
+    """
 
     @classmethod
     def setUpTestData(cls):
@@ -161,11 +166,17 @@ class CuposPorFechaTests(TestCase):
 
         Registro.objects.create(nombre="Hoy1", peso=5, estado="Aceptado", motivo="x")
 
+        # Hay 9 aceptados de hace 30 días + 1 de hoy = 10 en total,
+        # pero para el cupo de HOY solo debe contar el de hoy.
         self.assertEqual(cupos_ocupados(), 1)
 
 
 class LogoutYNextTests(TestCase):
-
+    """
+    Dos correcciones de seguridad: cerrar sesión solo debe aceptar POST
+    (un GET no debería poder desloguear a nadie), y el parámetro "next"
+    del login no debe mandar a sitios externos sin validar.
+    """
 
     @classmethod
     def setUpTestData(cls):
@@ -200,6 +211,8 @@ class LogoutYNextTests(TestCase):
 
 
 class CuposOtrosFiltrosTests(TestCase):
+    """Complementa a CuposPorFechaTests: solo cuentan los Aceptados, no
+    eliminados, y el registro que se edita no se cuenta a sí mismo."""
 
     def _crear(self, nombre, estado="Aceptado", dias_atras=0, eliminado=False):
         from datetime import timedelta
