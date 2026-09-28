@@ -14,6 +14,7 @@
         .invalido { color: #b06a00; }
         .btn { padding: 4px 10px; text-decoration: none; border: 1px solid #333; border-radius: 4px; color: #333; }
         .msg-error { color: #b00020; }
+        .link-btn { background: none; border: none; padding: 0; color: #0645ad; text-decoration: underline; cursor: pointer; font: inherit; }
     </style>
 </head>
 <body>
@@ -23,7 +24,10 @@
         <div>
             Hola, {{ user.username }}
             &nbsp;|&nbsp;
-            <a href="{% url 'logout' %}">Cerrar sesión</a>
+            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button class="link-btn" type="submit">Cerrar sesión</button>
+            </form>
         </div>
     </div>
 

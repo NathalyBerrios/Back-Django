@@ -1,5 +1,7 @@
 import json
 
+from django.utils import timezone
+
 from core.models import Registro
 from core.servicios import cupos_ocupados
 from solucion import evaluar_admision
