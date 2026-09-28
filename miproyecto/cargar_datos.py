@@ -3,6 +3,7 @@ import json
 from django.utils import timezone
 
 from core.models import Registro
+from core.servicios import cupos_ocupados
 from solucion import evaluar_admision
 
 with open("datos.json", encoding="utf-8") as f:
@@ -12,15 +13,11 @@ creados = 0
 for r in datos_viejos:
     nombre = r.get("nombre", "Sin nombre")
     if Registro.objects.filter(nombre=nombre).exists():
-        continue  # evita duplicar si el script se corre dos veces
+        continue  
 
-    peso = r.get("peso", 10)
+    peso = r.get("peso", 0)
 
-    mascotas_ingresadas = Registro.objects.filter(
-        estado="Aceptado",
-        eliminado=False,
-        fecha__date=timezone.localdate(),
-    ).count()
+    mascotas_ingresadas = cupos_ocupados()
 
     estado, motivo = evaluar_admision(mascotas_ingresadas, peso)
 

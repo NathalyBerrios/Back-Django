@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
@@ -10,17 +9,7 @@ from solucion import evaluar_admision
 from .models import Registro
 from .decorators import requiere_rol, tiene_rol
 from .forms import RegistroForm
-
-
-def _cupos_ocupados(excluir_pk=None):
-    ocupados = Registro.objects.filter(
-        estado="Aceptado",
-        eliminado=False,
-        fecha__date=timezone.localdate(),  # <- solo cuenta las de hoy
-    )
-    if excluir_pk is not None:
-        ocupados = ocupados.exclude(pk=excluir_pk)
-    return ocupados.count()
+from .servicios import cupos_ocupados
 
 
 # ---------- READ ----------
@@ -45,7 +34,7 @@ def crear(request):
     if request.method == "POST" and form.is_valid():
         nombre = form.cleaned_data["nombre"]
         peso = form.cleaned_data["peso"]
-        mascotas_ingresadas = _cupos_ocupados()
+        mascotas_ingresadas = cupos_ocupados()
         estado, motivo = evaluar_admision(mascotas_ingresadas, peso)
         Registro.objects.create(nombre=nombre, peso=peso, estado=estado, motivo=motivo)
         return redirect("lista")
@@ -61,7 +50,7 @@ def editar(request, pk):
     if request.method == "POST" and form.is_valid():
         nombre = form.cleaned_data["nombre"]
         peso = form.cleaned_data["peso"]
-        mascotas_ingresadas = _cupos_ocupados(excluir_pk=reg.pk)
+        mascotas_ingresadas = cupos_ocupados(excluir_pk=reg.pk)
         # Se recalcula con la regla de decisión: si cambia el peso,
         # el estado y el motivo tienen que quedar al día.
         estado, motivo = evaluar_admision(mascotas_ingresadas, peso)

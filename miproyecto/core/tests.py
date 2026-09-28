@@ -40,11 +40,6 @@ class RegistroModelTests(TestCase):
 
 
 class PermisosVistasTests(TestCase):
-    """
-    Formaliza lo mismo que se probó a mano escribiendo las URLs en el
-    navegador: cada rol solo puede llegar a donde le corresponde, aunque
-    escriba la dirección directamente.
-    """
 
     @classmethod
     def setUpTestData(cls):
@@ -151,17 +146,11 @@ class CrudFormularioTests(TestCase):
 
 
 class CuposPorFechaTests(TestCase):
-    """
-    El bug que encontró el profesor: contar los cupos sin filtrar por
-    fecha hacía que, pasadas 10 aceptaciones en TODA la vida del
-    sistema, nadie más volviera a ser admitido. Se prueba directamente
-    sobre _cupos_ocupados(), sin pasar por las vistas.
-    """
 
     def test_aceptados_de_otro_dia_no_cuentan_para_hoy(self):
         from datetime import timedelta
         from django.utils import timezone
-        from .views import _cupos_ocupados
+        from .servicios import cupos_ocupados
 
         hace_30_dias = timezone.now() - timedelta(days=30)
         for i in range(9):
@@ -172,17 +161,11 @@ class CuposPorFechaTests(TestCase):
 
         Registro.objects.create(nombre="Hoy1", peso=5, estado="Aceptado", motivo="x")
 
-        # Hay 9 aceptados de hace 30 días + 1 de hoy = 10 en total,
-        # pero para el cupo de HOY solo debe contar el de hoy.
-        self.assertEqual(_cupos_ocupados(), 1)
+        self.assertEqual(cupos_ocupados(), 1)
 
 
 class LogoutYNextTests(TestCase):
-    """
-    Dos correcciones de seguridad: cerrar sesión solo debe aceptar POST
-    (un GET no debería poder desloguear a nadie), y el parámetro "next"
-    del login no debe mandar a sitios externos sin validar.
-    """
+
 
     @classmethod
     def setUpTestData(cls):
@@ -214,3 +197,32 @@ class LogoutYNextTests(TestCase):
             {"username": "test_user", "password": "clave123"},
         )
         self.assertRedirects(respuesta, "/", fetch_redirect_response=False)
+
+
+class CuposOtrosFiltrosTests(TestCase):
+
+    def _crear(self, nombre, estado="Aceptado", dias_atras=0, eliminado=False):
+        from datetime import timedelta
+        from django.utils import timezone
+
+        return Registro.objects.create(
+            nombre=nombre, peso=5, estado=estado, motivo="x",
+            fecha=timezone.now() - timedelta(days=dias_atras),
+            eliminado=eliminado,
+        )
+
+    def test_solo_cuentan_aceptados_de_hoy_no_eliminados(self):
+        from .servicios import cupos_ocupados
+
+        self._crear("hoy1")
+        self._crear("hoy2")
+        self._crear("rechazado", estado="Rechazado")
+        self._crear("eliminado", eliminado=True)
+        self.assertEqual(cupos_ocupados(), 2)
+
+    def test_excluir_pk_no_cuenta_el_registro_que_se_edita(self):
+        from .servicios import cupos_ocupados
+
+        propio = self._crear("propio")
+        self._crear("otro")
+        self.assertEqual(cupos_ocupados(excluir_pk=propio.pk), 1)
