@@ -1,0 +1,13 @@
+Prueba 1 (401 Unauthorized): Intento de listar registros (GET a /api/registros/) sin enviar credenciales ni token de acceso, demostrando que la ruta está protegida. Archivo: 1_get_sin_token_401.png.
+
+Prueba 2 (200 OK): Generación exitosa del token de acceso JWT (POST a /api/token/) enviando el usuario y contraseña válidos del superadministrador. Archivo: 2_post_obtener_token_200.png.
+
+Prueba 3 (200 OK): Lectura de la lista de mascotas (GET a /api/registros/) utilizando el token válido en la pestaña Authorization (Bearer Token). Archivo: 3_get_listar_200.png.
+
+Prueba 4 (201 Created): Creación de un registro válido para "Firulais" (POST a /api/registros/), comprobando que la regla de negocio asigna el estado y el motivo automáticamente. Archivo: 4_post_crear_201.png.
+
+Prueba 5 (204 No Content): Eliminación exitosa del registro recién creado (DELETE a /api/registros/6/), verificando que el servidor procesa la solicitud sin devolver contenido en el cuerpo. Archivo: 5_delete_204.png.
+
+Prueba 6 (400 Bad Request): Envío de un JSON con formato incorrecto o datos inválidos (POST a /api/registros/) para validar que la API rechaza correctamente la petición. Archivo: 6_post_error_400.png.
+
+Prueba 7 (403 Forbidden): Intento de creación de registro (POST a /api/registros/) empleando el token del usuario viewer1, confirmando que el rol de solo lectura no tiene los permisos necesarios. Archivo: 7_post_forbidden_403.png.
