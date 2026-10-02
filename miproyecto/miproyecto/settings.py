@@ -39,8 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',   # ES3: Django REST Framework
-    'drf_spectacular',  # ES3: documentación Swagger de la API
+    'rest_framework',
+    'rest_framework.authtoken',  
+    'rest_framework_simplejwt',  
+    'drf_spectacular',  
     'core',
 ]
 
