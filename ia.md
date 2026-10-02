@@ -2,6 +2,7 @@
 
 ## 1. Herramientas utilizadas
 Utilicé Google Gemini y Claude para asistir en la migración de JSON a SQLite, la implementación de vistas CRUD y el sistema de roles de seguridad.
+Para la EVA3 utilicé Claude para adaptar el ejemplo de la pauta a mi modelo de registro y generar el código de la API.
 
 ## 2. Detalle de Consultas, Respuestas y Mis Correcciones
 
@@ -20,3 +21,15 @@ Mi corrección: Implementé el script `crear_usuarios.py` usando la librería `d
 Consulta: "Cómo cambiar el historial en github por la exposición del secret_key."
 Respuesta de la IA: Me explicó que alterar el historial de Git es riesgoso y que el estándar de la industria es invalidar la clave expuesta rotándola por una nueva localmente.
 Mi corrección: Entendí el proceso y procedí a cambiar el valor de la clave secreta directamente en mi archivo `.env` local para que la antigua quedara inutilizada.
+
+Consulta: "Necesito revisar mi repositorio de la ES2 contra los comentarios del profesor"
+Respuesta de la IA: Confirmó que el filtro por fecha en los cupos ya estaba aplicado y encontró que cargar_datos.py asignaba peso 10 por defecto a los registros sin peso, en vez de 0.
+Mi corrección: Cambié el peso por defecto a 0 para que queden como Dato Inválido, moví el conteo de cupos a core/servicios.py (un solo lugar) y cambié la zona horaria a America/Santiago.
+
+Consulta: "Necesito ayuda para convertir mi proyecto de la ES2 en una API con Django REST Framework, cumpliendo la pauta de la ES3"
+Respuesta de la IA: Me entregó serializers.py, api_views.py, permissions.py, la configuración de settings y las rutas. 
+Mi corrección: Adapté los nombres a mi modelo y armé los permisos con mis grupos admin/normal/viewer. Comprobé con pruebas que un viewer recibe 403 al crear y un normal recibe 403 al borrar.
+
+Consulta de seguridad: "¿Cómo autentico la API y qué permisos dejo por defecto?"
+Respuesta de la IA: Propuso JWT con SimpleJWT y IsAuthenticated como permiso por defecto.
+Mi corrección: Verifiqué que GET sin token responde 401 y que mandar "estado": "Aceptado" en el JSON no cambia el resultado (ver pruebas/salida_pruebas.txt).
