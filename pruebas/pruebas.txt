@@ -11,3 +11,7 @@ Prueba 5 (204 No Content): Eliminación exitosa del registro recién creado (DEL
 Prueba 6 (400 Bad Request): Envío de un JSON con formato incorrecto o datos inválidos (POST a /api/registros/) para validar que la API rechaza correctamente la petición. Archivo: 6_post_error_400.png.
 
 Prueba 7 (403 Forbidden): Intento de creación de registro (POST a /api/registros/) empleando el token del usuario viewer1, confirmando que el rol de solo lectura no tiene los permisos necesarios. Archivo: 7_post_forbidden_403.png.
+
+Prueba 8 (404 Not Found): Consulta de un registro con un id inexistente (GET a /api/registros/99999/) con token válido, confirmando que la API responde 404 cuando el recurso no existe. Verificado con curl -i; respuesta: HTTP/1.1 404 Not Found, Content-Type: application/json.
+
+Prueba 9 (200 OK, paginación): Con 16 registros en la base, GET a /api/registros/ devuelve "count": 16, "next": ".../?page=2" y 10 resultados en la primera página; GET a /api/registros/?page=2 devuelve "previous": "..." y los 6 restantes. Confirma que DEFAULT_PAGINATION_CLASS / PAGE_SIZE=10 están activos.

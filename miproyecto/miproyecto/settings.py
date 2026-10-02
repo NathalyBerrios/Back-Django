@@ -40,9 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',  
-    'rest_framework_simplejwt',  
-    'drf_spectacular',  
+    'rest_framework_simplejwt',  # autenticación de la API (ES3): JWT
+    'drf_spectacular',           # documentación Swagger de la API (ES3)
     'core',
 ]
 
